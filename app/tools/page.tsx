@@ -10,18 +10,12 @@ export default function ToolsPage() {
       title: "Domain Checker",
       path: "/tools/domain-checker",
     },
-    {
-      title: "DMARC Checker",
-      path: "/tools/dmarc-checker",
-    },
+    
     {
       title: "SPF Checker",
       path: "/tools/spf-checker",
     },
-    {
-      title: "DKIM Checker",
-      path: "/tools/dkim-checker",
-    },
+    
   ];
 
   return (

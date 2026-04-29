@@ -1,8 +1,29 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 export default function CTA() {
   const router = useRouter();
+
+  const [isLogin, setIsLogin] = useState(false);
+
+  // ✅ cek login
+  useEffect(() => {
+    const checkLogin = () => {
+      const token = Cookies.get("access");
+      setIsLogin(!!token);
+    };
+
+    checkLogin();
+
+    // 🔥 biar auto update setelah login/logout
+    window.addEventListener("authChange", checkLogin);
+
+    return () => {
+      window.removeEventListener("authChange", checkLogin);
+    };
+  }, []);
 
   return (
     <section className="py-20 bg-blue-900 text-white">
@@ -18,15 +39,22 @@ export default function CTA() {
 
         <div className="flex justify-center gap-3">
 
+          {/* ✅ BUTTON FIX */}
           <button
-            onClick={() => router.push("/login")}
+            onClick={() =>
+              router.push(isLogin ? "/user/dashboard" : "/login")
+            }
             className="bg-white text-blue-900 px-5 py-2.5 rounded-md font-medium hover:bg-gray-200 transition"
           >
-            Mulai Sekarang
+            {isLogin ? "Ke Dashboard" : "Mulai Sekarang"}
           </button>
 
           <button
-            onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
+            onClick={() =>
+              document
+                .getElementById("features")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
             className="border border-white px-5 py-2.5 rounded-md font-medium hover:bg-white hover:text-blue-900 transition"
           >
             Lihat Fitur

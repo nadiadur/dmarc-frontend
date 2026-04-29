@@ -19,7 +19,7 @@ export default function HowItWorks() {
           <div className="hidden md:block">
             <div className="sticky top-24">
               <Image
-                src="/bg.jpg"
+                src="/bannerEmail.jpg"
                 alt="dashboard"
                 width={600}
                 height={400}

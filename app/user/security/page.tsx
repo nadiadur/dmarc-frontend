@@ -1,44 +1,100 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { getReports } from '@/lib/reportService'
+
+/* ================= TYPES ================= */
+
+type Report = {
+  status: string
+  failed_messages: number
+}
+
+/* ================= PAGE ================= */
+
 export default function SecurityPage() {
+  const [loading, setLoading] = useState(true)
+
+  const [stats, setStats] = useState<{
+    total: number
+    secure: number
+    risk: number
+  }>({
+    total: 0,
+    secure: 0,
+    risk: 0,
+  })
+
+  useEffect(() => {
+    getReports()
+      .then((data: { results?: Report[] }) => {
+        const reports = data.results ?? []
+
+        const total = reports.length
+
+        const risk = reports.filter(
+          (r) => r.status === 'failed' || r.failed_messages > 0
+        ).length
+
+        const secure = total - risk
+
+        setStats({ total, secure, risk })
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 p-6">
 
-      <main className="p-6">
+      {/* HEADER */}
+      <h1 className="text-2xl font-bold mb-6">
+        Security Dashboard 🛡
+      </h1>
 
-        <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">
-            Security Analysis 🛡
-          </h2>
-          <p className="text-gray-600">
-            Analisis keamanan email dan domain DMARC kamu
+      {/* STATS CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div className="bg-white p-5 rounded shadow">
+          <p className="text-gray-500">Total Reports</p>
+          <p className="text-2xl font-bold">{stats.total}</p>
+        </div>
+
+        <div className="bg-green-100 p-5 rounded shadow">
+          <p className="text-gray-600">Secure</p>
+          <p className="text-2xl font-bold text-green-700">
+            {stats.secure}
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow border">
-
-          <h3 className="text-lg font-semibold mb-4 text-green-600">
-            ✔ System Secure
-          </h3>
-
-          <div className="space-y-2 text-gray-700">
-            <p>🛡 Status: Secure</p>
-            <p>✔ SPF: Valid</p>
-            <p>✔ DKIM: Valid</p>
-            <p>✔ DMARC: Active</p>
-          </div>
-
-        </div>
-
-        <div className="mt-6 bg-white p-6 rounded-xl shadow border">
-          <h3 className="text-lg font-semibold mb-2">
-            Penjelasan
-          </h3>
-
-          <p className="text-gray-600">
-            Sistem keamanan email kamu sudah berjalan dengan baik. Semua record (SPF, DKIM, DMARC) terkonfigurasi dengan benar untuk mencegah spoofing dan phishing.
+        <div className="bg-red-100 p-5 rounded shadow">
+          <p className="text-gray-600">Risk</p>
+          <p className="text-2xl font-bold text-red-700">
+            {stats.risk}
           </p>
         </div>
 
-      </main>
+      </div>
+
+      {/* INFO */}
+      <div className="mt-6 bg-white p-5 rounded shadow">
+        <h2 className="font-semibold mb-2">
+          Penjelasan Security
+        </h2>
+
+        <p className="text-gray-600">
+          Halaman ini menampilkan ringkasan keamanan berdasarkan hasil
+          DMARC report (SPF, DKIM, dan status failed messages).
+        </p>
+      </div>
+
     </div>
-  );
+  )
 }

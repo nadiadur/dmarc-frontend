@@ -3,136 +3,152 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-/* 🔹 TYPE RESULT */
+/* 🔹 TYPE RESULT (sesuai backend Django kamu) */
 type DomainResult = {
   domain: string;
   status: string;
-  ip: string;
   spf: string;
   dmarc: string;
 };
 
 export default function DomainCheckerPage() {
-  const [domain, setDomain] = useState<string>("");
+  const [domain, setDomain] = useState("");
   const [result, setResult] = useState<DomainResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const router = useRouter();
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
     if (!domain) {
       alert("Masukkan domain!");
       return;
     }
 
-    const fakeResult: DomainResult = {
-      domain,
-      status: "Valid",
-      ip: "192.168.1.1",
-      spf: "Available",
-      dmarc: "Configured",
-    };
+    setLoading(true);
+    setError("");
+    setResult(null);
 
-    setResult(fakeResult);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/scan-domain/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({ domain }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Gagal scan domain");
+      }
+
+      setResult(data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Terjadi kesalahan");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 py-16 px-6">
       <div className="max-w-5xl mx-auto">
 
-        <div className="text-sm md:text-base text-gray-500 mb-8">
-          <span
-            onClick={() => router.push("/")}
-            className="text-blue-600 cursor-pointer hover:underline"
-          >
+        {/* NAV */}
+        <div className="text-sm text-gray-500 mb-8">
+          <span onClick={() => router.push("/")} className="text-blue-600 cursor-pointer hover:underline">
             Home
           </span>
-
           <span className="mx-2">/</span>
-
-          <span
-            onClick={() => router.push("/tools")}
-            className="text-blue-600 cursor-pointer hover:underline"
-          >
+          <span onClick={() => router.push("/tools")} className="text-blue-600 cursor-pointer hover:underline">
             Tools
           </span>
-
           <span className="mx-2">/</span>
-
-          <span className="text-gray-700 font-semibold">
-            Domain Checker
-          </span>
+          <span className="text-gray-700 font-semibold">Domain Checker</span>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-10 md:p-12">
+        {/* CARD */}
+        <div className="bg-white rounded-2xl shadow-xl p-10">
 
-          <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-3">
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">
             Domain Checker
           </h1>
 
-          <p className="text-gray-500 text-lg mb-8">
-            Periksa informasi domain dan konfigurasi email security Anda
+          <p className="text-gray-500 mb-8">
+            Cek SPF & DMARC domain secara real-time
           </p>
 
-          <div className="flex flex-col md:flex-row gap-4 mb-10">
+          {/* INPUT */}
+          <div className="flex gap-4 mb-6">
             <input
               type="text"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCheck()}
               placeholder="example.com"
-              className="flex-1 px-6 py-4 text-lg rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-5 py-4 border rounded-xl focus:ring-2 focus:ring-blue-500"
             />
 
             <button
               onClick={handleCheck}
-              className="bg-blue-900 text-white px-8 py-4 text-lg rounded-xl hover:bg-blue-800 transition shadow-md"
+              disabled={loading}
+              className="bg-blue-900 text-white px-6 py-4 rounded-xl hover:bg-blue-800 disabled:opacity-50"
             >
-              Check
+              {loading ? "Checking..." : "Check"}
             </button>
           </div>
 
-          {result && (
-            <div className="space-y-6">
+          {/* ERROR */}
+          {error && (
+            <div className="mb-6 p-3 bg-red-100 text-red-600 rounded-lg">
+              {error}
+            </div>
+          )}
 
-              <h2 className="text-2xl font-semibold text-blue-900">
-                Hasil Analisis
+          {/* RESULT */}
+          {result && (
+            <div className="space-y-4">
+
+              <h2 className="text-xl font-semibold text-blue-900">
+                Hasil Scan
               </h2>
 
-              <div className="grid md:grid-cols-2 gap-5">
+              <div className="grid md:grid-cols-2 gap-4">
 
-                <div className="p-5 border rounded-xl bg-gray-50">
+                <div className="p-4 border rounded-xl bg-gray-50">
                   <p className="text-gray-500 text-sm">Domain</p>
-                  <p className="font-semibold text-lg">{result.domain}</p>
+                  <p className="font-semibold">{result.domain}</p>
                 </div>
 
-                <div className="p-5 border rounded-xl bg-gray-50">
+                <div className="p-4 border rounded-xl bg-gray-50">
                   <p className="text-gray-500 text-sm">Status</p>
-                  <p className="font-semibold text-lg text-green-600">
+                  <p className="font-semibold text-green-600">
                     {result.status}
                   </p>
                 </div>
 
-                <div className="p-5 border rounded-xl bg-gray-50">
-                  <p className="text-gray-500 text-sm">IP Address</p>
-                  <p className="font-semibold text-lg">{result.ip}</p>
-                </div>
-
-                <div className="p-5 border rounded-xl bg-gray-50">
+                <div className="p-4 border rounded-xl bg-gray-50">
                   <p className="text-gray-500 text-sm">SPF</p>
-                  <p className="font-semibold text-lg">{result.spf}</p>
+                  <p className="font-semibold">{result.spf}</p>
                 </div>
 
-                <div className="p-5 border rounded-xl bg-gray-50 md:col-span-2">
+                <div className="p-4 border rounded-xl bg-gray-50">
                   <p className="text-gray-500 text-sm">DMARC</p>
-                  <p className="font-semibold text-lg">{result.dmarc}</p>
+                  <p className="font-semibold">{result.dmarc}</p>
                 </div>
 
               </div>
-
             </div>
           )}
 
         </div>
-
       </div>
     </div>
   );

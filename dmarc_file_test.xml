@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<feedback>
+
+  <report_metadata>
+    <org_name>Example Mail Provider</org_name>
+    <email>postmaster@example.com</email>
+    <report_id>76e9b11e-test-0001</report_id>
+    <date_range>
+      <begin>1703980800</begin>
+      <end>1704067200</end>
+    </date_range>
+  </report_metadata>
+
+  <policy_published>
+    <domain>yourdomain.com</domain>
+    <adkim>r</adkim>
+    <aspf>r</aspf>
+    <p>none</p>
+    <sp>none</sp>
+    <pct>100</pct>
+  </policy_published>
+
+  <!-- ================= RECORD 1 (PASS) ================= -->
+  <record>
+    <row>
+      <source_ip>203.0.113.42</source_ip>
+      <count>3</count>
+      <policy_evaluated>
+        <disposition>none</disposition>
+        <dkim>pass</dkim>
+        <spf>pass</spf>
+      </policy_evaluated>
+    </row>
+
+    <identifiers>
+      <header_from>yourdomain.com</header_from>
+    </identifiers>
+
+    <auth_results>
+      <dkim>
+        <domain>yourdomain.com</domain>
+        <result>pass</result>
+      </dkim>
+      <spf>
+        <domain>yourdomain.com</domain>
+        <result>pass</result>
+      </spf>
+    </auth_results>
+  </record>
+
+  <!-- ================= RECORD 2 (FAIL SPF) ================= -->
+  <record>
+    <row>
+      <source_ip>198.51.100.77</source_ip>
+      <count>2</count>
+      <policy_evaluated>
+        <disposition>none</disposition>
+        <dkim>fail</dkim>
+        <spf>fail</spf>
+      </policy_evaluated>
+    </row>
+
+    <identifiers>
+      <header_from>yourdomain.com</header_from>
+    </identifiers>
+
+    <auth_results>
+      <dkim>
+        <domain>yourdomain.com</domain>
+        <result>fail</result>
+      </dkim>
+      <spf>
+        <domain>spoofed-domain.com</domain>
+        <result>fail</result>
+      </spf>
+    </auth_results>
+  </record>
+
+  <!-- ================= RECORD 3 (SUSPICIOUS) ================= -->
+  <record>
+    <row>
+      <source_ip>192.0.2.10</source_ip>
+      <count>5</count>
+      <policy_evaluated>
+        <disposition>quarantine</disposition>
+        <dkim>fail</dkim>
+        <spf>pass</spf>
+      </policy_evaluated>
+    </row>
+
+    <identifiers>
+      <header_from>yourdomain.com</header_from>
+    </identifiers>
+
+    <auth_results>
+      <dkim>
+        <domain>yourdomain.com</domain>
+        <result>fail</result>
+      </dkim>
+      <spf>
+        <domain>yourdomain.com</domain>
+        <result>pass</result>
+      </spf>
+    </auth_results>
+  </record>
+
+</feedback>

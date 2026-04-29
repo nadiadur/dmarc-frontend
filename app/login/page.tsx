@@ -2,7 +2,7 @@
 
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function UserLoginPage() {
   const router = useRouter();
@@ -12,21 +12,35 @@ export default function UserLoginPage() {
   const [loading, setLoading] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
 
+  // ✅ kalau sudah login → langsung ke dashboard (tanpa numpuk history)
+  useEffect(() => {
+    const token = Cookies.get("access");
+    if (token) {
+      router.replace("/user/dashboard"); // 🔥 ganti push → replace
+    }
+  }, [router]);
+
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+
+    Cookies.remove("access");
+    Cookies.remove("refresh");
 
     try {
       const res = await fetch("http://127.0.0.1:8000/api/auth/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, password }),
+        body: JSON.stringify({
+          name,
+          password,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.detail || "Username atau password salah");
+        alert(data.detail || "Login gagal");
         setLoading(false);
         return;
       }
@@ -44,16 +58,27 @@ export default function UserLoginPage() {
         return;
       }
 
-      Cookies.set("access", data.access, { path: "/" });
-      Cookies.set("refresh", data.refresh, { path: "/" });
-      Cookies.set("role", "user", { path: "/" });
-      Cookies.set("email", data.email, { path: "/" });
-      Cookies.set("user_id", data.user_id, { path: "/" });
-      Cookies.set("username", data.name, { path: "/" });
+      // ✅ SIMPAN COOKIE (rapi & konsisten)
+      const cookieOptions = {
+        path: "/",
+        sameSite: "lax" as const,
+      };
+
+      Cookies.set("access", data.access, cookieOptions);
+      Cookies.set("refresh", data.refresh, cookieOptions);
+      Cookies.set("role", "user", cookieOptions);
+      Cookies.set("email", data.email, cookieOptions);
+      Cookies.set("user_id", data.user_id, cookieOptions);
+      Cookies.set("username", data.name, cookieOptions);
+
+      // 🔥 trigger update navbar (CUSTOM EVENT, bukan storage)
+      window.dispatchEvent(new Event("authChange"));
 
       setIsLeaving(true);
-      await new Promise((r) => setTimeout(r, 400));
-      router.push("/user/dashboard");
+
+      setTimeout(() => {
+        router.replace("/user/dashboard"); // 🔥 lebih clean
+      }, 300);
 
     } catch (error) {
       console.error("Login error:", error);
@@ -69,7 +94,6 @@ export default function UserLoginPage() {
       }`}
     >
       <div className="w-[45%] bg-white flex flex-col justify-center px-16 relative">
-
         <h1 className="absolute top-6 left-10 text-xl font-semibold text-blue-600">
           Dmarclytics
         </h1>
@@ -78,7 +102,6 @@ export default function UserLoginPage() {
           <h2 className="text-3xl font-bold text-gray-800 mb-4">
             WELCOME BACK !
           </h2>
-
           <p className="text-gray-500">
             Login to continue your journey with us
           </p>
@@ -86,18 +109,15 @@ export default function UserLoginPage() {
       </div>
 
       <div className="w-[55%] flex items-center justify-center bg-gradient-to-b from-blue-700 to-blue-400">
-
-        <div className="bg-white/10 backdrop-blur-md p-10 rounded-2xl w-[400px] text-center shadow-xl animate-[fadeSlide_1s_ease]">
-
+        <div className="bg-white/10 backdrop-blur-md p-10 rounded-2xl w-[400px] text-center shadow-xl">
           <h2 className="text-2xl font-semibold text-white mb-6">
             LOGIN
           </h2>
 
           <form onSubmit={handleLogin} className="space-y-4">
-
             <input
               type="text"
-              placeholder="Nama"
+              placeholder="Username"
               className="w-full px-4 py-3 rounded-lg bg-white/80 outline-none focus:ring-2 focus:ring-blue-300"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -119,7 +139,6 @@ export default function UserLoginPage() {
             >
               {loading ? "Loading..." : "Login"}
             </button>
-
           </form>
 
           <p className="text-sm text-gray-200 mt-6">
@@ -129,29 +148,15 @@ export default function UserLoginPage() {
                 setIsLeaving(true);
                 setTimeout(() => {
                   router.push("/register");
-                }, 400);
+                }, 300);
               }}
               className="text-white font-semibold cursor-pointer underline"
             >
               Daftar
             </span>
           </p>
-
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeSlide {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }

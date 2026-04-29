@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feedback>
+  <report_metadata>
+    <org_name>outlook.com</org_name>
+    <email>dmarc-noreply@outlook.com</email>
+    <report_id>ND-987654321</report_id>
+    <date_range>
+      <begin>1714176000</begin>
+      <end>1714262400</end>
+    </date_range>
+  </report_metadata>
+
+  <policy_published>
+    <domain>nadiadomain.com</domain>
+    <adkim>r</adkim>
+    <aspf>r</aspf>
+    <p>reject</p>
+    <sp>reject</sp>
+    <pct>100</pct>
+  </policy_published>
+
+  <record>
+    <row>
+      <source_ip>185.234.219.56</source_ip> <!-- 🌍 IP luar negeri -->
+      <count>3</count>
+      <policy_evaluated>
+        <disposition>reject</disposition>
+        <dkim>fail</dkim> <!-- ❌ -->
+        <spf>fail</spf>   <!-- ❌ -->
+      </policy_evaluated>
+    </row>
+
+    <identifiers>
+      <header_from>nadiadomain.com</header_from>
+    </identifiers>
+
+    <auth_results>
+      <spf>
+        <domain>nadiadomain.com</domain>
+        <result>fail</result> <!-- ❌ -->
+      </spf>
+      <dkim>
+        <domain>nadiadomain.com</domain>
+        <result>fail</result> <!-- ❌ -->
+      </dkim>
+    </auth_results>
+  </record>
+</feedback>

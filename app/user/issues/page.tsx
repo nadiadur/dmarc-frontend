@@ -1,44 +1,101 @@
-export default function IssuesPage() {
+'use client'
+
+import { useEffect, useState } from 'react'
+import { getReports } from '@/lib/reportService'
+
+/* ================= TYPE ================= */
+
+type Report = {
+  id: string
+  org_name: string
+  domain_policy: string
+  status: string
+  failed_messages: number
+  passed_messages: number
+}
+
+/* ================= PAGE ================= */
+
+export default function IssuePage() {
+  const [loading, setLoading] = useState(true)
+  const [issues, setIssues] = useState<Report[]>([])
+
+  useEffect(() => {
+    getReports()
+      .then((data: { results?: Report[] }) => {
+        const reports = data.results ?? []
+
+        const filtered = reports.filter((r) => {
+          return (
+            r.status === 'failed' ||
+            r.failed_messages > 0 ||
+            r.domain_policy === 'none'
+          )
+        })
+
+        setIssues(filtered)
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 p-6">
 
+      {/* HEADER */}
+      <h1 className="text-2xl font-bold mb-6">
+        Security Issues ⚠️
+      </h1>
 
-      <main className="p-6">
-
-        <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">
-            System Issues ⚠
-          </h2>
-          <p className="text-gray-600">
-            Masalah yang terdeteksi pada sistem DMARC kamu
-          </p>
+      {/* EMPTY STATE */}
+      {issues.length === 0 ? (
+        <div className="bg-white p-6 rounded shadow text-green-600">
+          ✔ Tidak ada issue keamanan terdeteksi
         </div>
+      ) : (
+        <div className="space-y-4">
 
-        <div className="bg-white p-6 rounded-xl shadow border">
+          {issues.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white p-5 rounded shadow border-l-4 border-red-500"
+            >
+              <h2 className="font-semibold text-lg">
+                {item.org_name}
+              </h2>
 
-          <h3 className="text-lg font-semibold mb-4 text-red-600">
-            ⚠ Issue Detected
-          </h3>
+              <p className="text-gray-600">
+                Domain: {item.domain_policy}
+              </p>
 
-          <div className="space-y-2 text-gray-700">
-            <p>• Total Issue: 1</p>
-            <p>• SPF record belum optimal</p>
-            <p>• Status: Perlu perbaikan</p>
-          </div>
+              <div className="mt-2 text-sm text-red-600 space-y-1">
+
+                {item.status === 'failed' && (
+                  <p>❌ Status report failed</p>
+                )}
+
+                {item.failed_messages > 0 && (
+                  <p>❌ Failed messages: {item.failed_messages}</p>
+                )}
+
+                {item.domain_policy === 'none' && (
+                  <p>⚠️ DMARC policy masih NONE (rawan spoofing)</p>
+                )}
+
+              </div>
+            </div>
+          ))}
 
         </div>
+      )}
 
-        <div className="mt-6 bg-white p-6 rounded-xl shadow border">
-          <h3 className="text-lg font-semibold mb-2">
-            Rekomendasi
-          </h3>
-
-          <p className="text-gray-600">
-            Perbaiki konfigurasi SPF untuk meningkatkan keamanan email dan mengurangi risiko spoofing.
-          </p>
-        </div>
-
-      </main>
     </div>
-  );
+  )
 }

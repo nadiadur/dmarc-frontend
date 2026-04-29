@@ -1,39 +1,34 @@
 "use client";
 
-import { useSyncExternalStore, useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import Cookies from "js-cookie";
 import Link from "next/link";
 
-function getCookieSnapshot() {
-  return Cookies.get("username") ?? "User";
-}
-function getServerSnapshot() {
-  return "User";
-}
-
-function getEmailSnapshot() {
-  return Cookies.get("email") ?? "";
-}
-function getEmailServerSnapshot() {
-  return "";
-}
-
 export default function Navbar() {
-  const name = useSyncExternalStore(
-    () => () => {},
-    getCookieSnapshot,
-    getServerSnapshot
-  );
-
-  const email = useSyncExternalStore(
-    () => () => {},
-    getEmailSnapshot,
-    getEmailServerSnapshot
-  );
-
+  const [name, setName] = useState("User");
+  const [email, setEmail] = useState("");
   const [open, setOpen] = useState(false);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // ✅ ambil data user + update saat login/logout
+  useEffect(() => {
+    const updateUser = () => {
+      setName(Cookies.get("username") ?? "User");
+      setEmail(Cookies.get("email") ?? "");
+    };
+
+    updateUser();
+
+    // 🔥 listen perubahan login/logout
+    window.addEventListener("authChange", updateUser);
+
+    return () => {
+      window.removeEventListener("authChange", updateUser);
+    };
+  }, []);
+
+  // ✅ klik luar dropdown
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -43,12 +38,13 @@ export default function Navbar() {
         setOpen(false);
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  /* 🔹 LOGOUT */
+  // 🔴 LOGOUT
   function handleLogout() {
     Cookies.remove("access");
     Cookies.remove("refresh");
@@ -57,7 +53,11 @@ export default function Navbar() {
     Cookies.remove("username");
     Cookies.remove("email");
 
-    window.location.href = "/login";
+    // 🔥 trigger navbar update
+    window.dispatchEvent(new Event("authChange"));
+
+    // 🔥 redirect clean
+    window.location.replace("/login");
   }
 
   return (
