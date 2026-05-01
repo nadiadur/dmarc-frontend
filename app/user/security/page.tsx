@@ -55,9 +55,15 @@ export default function SecurityPage() {
     <div className="min-h-screen bg-gray-100 p-6">
 
       {/* HEADER */}
-      <h1 className="text-2xl font-bold mb-6">
-        Security Dashboard 🛡
-      </h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">
+          Security Dashboard 🛡
+        </h1>
+
+        <p className="text-sm text-gray-500 mt-1">
+          Monitoring keamanan email dan domain DMARC
+        </p>
+      </div>
 
       {/* STATS CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

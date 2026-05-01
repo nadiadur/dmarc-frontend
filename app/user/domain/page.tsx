@@ -217,11 +217,19 @@ export default function DomainPage() {
     return (
       <div className="min-h-screen bg-gray-100 p-6">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Domain Management 🌐</h1>
-              <p className="text-gray-500 text-sm mt-1">Kelola domain yang dipantau DMARC-nya</p>
-            </div>
+            {/* HEADER */}
+            <div className="mb-6 flex items-start justify-between">
+              <div>
+                <div className="mb-6">
+                  <h1 className="text-3xl font-bold text-gray-800">
+                    Domain Management 🌐
+                  </h1>
+
+                  <p className="text-sm text-gray-500 mt-1">
+                    Kelola domain yang dipantau DMARC-nya
+                  </p>
+                </div>
+              </div>
             <button
               onClick={() => { setStep('add'); setFormDomain(''); setFormEmail('') }}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition"
@@ -308,6 +316,7 @@ export default function DomainPage() {
       </div>
     )
   }
+
 
   // ─────────────────────────────────────────────────────────────────────────
   // RENDER: Stepper pages

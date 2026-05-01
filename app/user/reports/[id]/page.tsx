@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { getReportDetail } from '@/lib/reportService'
+import api from '@/lib/api'
 
 /* ================= TYPES ================= */
 
@@ -48,11 +49,9 @@ interface ReportDetail {
 
 function safeArray(data: unknown): string[] {
   if (!data) return []
-
   if (Array.isArray(data)) {
     return data.filter((x): x is string => typeof x === 'string')
   }
-
   return []
 }
 
@@ -110,6 +109,89 @@ function RiskBadge({ level }: { level?: string | null }) {
   )
 }
 
+/* ================= DELETE MODAL ================= */
+
+function DeleteModal({
+  orgName,
+  onCancel,
+  onConfirm,
+  deleting,
+  error,
+}: {
+  orgName: string
+  onCancel: () => void
+  onConfirm: () => void
+  deleting: boolean
+  error: string | null
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* BACKDROP */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={() => !deleting && onCancel()}
+      />
+
+      {/* MODAL */}
+      <div className="relative bg-white w-[400px] rounded-3xl shadow-2xl p-6">
+
+        {/* ICON */}
+        <div className="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-3xl mb-4">
+          🗑️
+        </div>
+
+        {/* TITLE */}
+        <h2 className="text-xl font-bold text-center text-gray-800 mb-1">
+          Hapus Report?
+        </h2>
+
+        {/* ORG NAME */}
+        <p className="text-center text-sm font-medium text-gray-700 mb-2">
+          {orgName}
+        </p>
+
+        {/* DESC */}
+        <p className="text-sm text-gray-500 text-center mb-4">
+          Report ini akan dihapus permanen beserta seluruh records dan hasil analisis AI-nya.
+        </p>
+
+        {/* ERROR */}
+        {error && (
+          <div className="mb-4 px-3 py-2 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 text-center">
+            {error}
+          </div>
+        )}
+
+        {/* BUTTONS */}
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            disabled={deleting}
+            className="flex-1 py-2.5 rounded-xl border text-gray-600 hover:bg-gray-50 disabled:opacity-40 transition"
+          >
+            Batal
+          </button>
+
+          <button
+            onClick={onConfirm}
+            disabled={deleting}
+            className="flex-1 py-2.5 rounded-xl bg-red-500 text-white hover:bg-red-600 disabled:opacity-60 transition shadow-lg shadow-red-200 flex items-center justify-center gap-2"
+          >
+            {deleting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Menghapus...
+              </>
+            ) : (
+              'Ya, Hapus'
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ================= PAGE ================= */
 
 export default function ReportDetailPage() {
@@ -119,6 +201,11 @@ export default function ReportDetailPage() {
   const [report, setReport] = useState<ReportDetail | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // delete state
+  const [showDelete, setShowDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
   useEffect(() => {
     if (!id) return
 
@@ -127,6 +214,41 @@ export default function ReportDetailPage() {
       .catch(() => router.push('/user/reports'))
       .finally(() => setLoading(false))
   }, [id, router])
+
+  /* ================= DELETE HANDLER ================= */
+
+  const handleDelete = async () => {
+    if (!id) return
+
+    setDeleting(true)
+    setDeleteError(null)
+
+    try {
+      await api.delete(`/reports/${id}/`)
+      // Kembali ke halaman list setelah berhasil hapus
+      router.push('/user/reports')
+    } catch (err: unknown) {
+      if (
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        err.response &&
+        typeof err.response === 'object' &&
+        'data' in err.response &&
+        err.response.data &&
+        typeof err.response.data === 'object' &&
+        'detail' in err.response.data
+      ) {
+        setDeleteError((err.response.data as { detail: string }).detail)
+      } else {
+        setDeleteError('Gagal menghapus report. Coba lagi.')
+      }
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  /* ================= LOADING ================= */
 
   if (loading) {
     return (
@@ -141,7 +263,6 @@ export default function ReportDetailPage() {
   /* ================= SAFE DATA ================= */
 
   const aiReady = Boolean(report.ai_analyzed_at)
-
   const findings = safeArray(report.ai_findings)
   const recommendations = safeArray(report.ai_recommendations)
 
@@ -152,9 +273,22 @@ export default function ReportDetailPage() {
       <div className="max-w-6xl mx-auto">
 
         {/* HEADER */}
-        <div className="bg-white p-6 rounded shadow mb-6">
-          <h1 className="text-xl font-bold">{report.org_name}</h1>
-          <p className="text-gray-500">{report.org_email}</p>
+        <div className="bg-white p-6 rounded shadow mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold">{report.org_name}</h1>
+            <p className="text-gray-500">{report.org_email}</p>
+          </div>
+
+          {/* ✅ DELETE BUTTON */}
+          <button
+            onClick={() => {
+              setDeleteError(null)
+              setShowDelete(true)
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 transition text-sm font-medium"
+          >
+            🗑️ Hapus Report
+          </button>
         </div>
 
         {/* AI SECTION */}
@@ -254,6 +388,17 @@ export default function ReportDetailPage() {
         </div>
 
       </div>
+
+      {/* ================= DELETE MODAL ================= */}
+      {showDelete && (
+        <DeleteModal
+          orgName={report.org_name}
+          onCancel={() => setShowDelete(false)}
+          onConfirm={handleDelete}
+          deleting={deleting}
+          error={deleteError}
+        />
+      )}
     </div>
   )
 }
