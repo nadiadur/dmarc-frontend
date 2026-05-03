@@ -32,7 +32,7 @@ export default function Footer() {
           </p>
           <span className="hidden md:inline text-gray-600">|</span>
           <p className="hover:text-white transition">
-            +62 812-3456-7890
+            support@fastacenter.com
           </p>
         </div>
       </div>
