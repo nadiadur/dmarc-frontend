@@ -49,17 +49,18 @@ export default function RegisterPage() {
   >
     <div className="w-[45%] relative flex flex-col justify-center px-16 bg-gradient-to-b from-blue-700 to-blue-400 text-white">
       
-      <h1 className="absolute top-6 left-10 text-xl font-semibold">
-        DMARC
+      <h1 onClick={() => router.push("/")}
+       className="absolute top-6 left-10 text-xl font-semibold">
+        Dmarclytics
       </h1>
 
       <div>
         <h2 className="text-3xl font-bold mb-4">
-          JOIN WITH US !
+          BERGABUNG DENGAN KAMI! 🚀
         </h2>
 
         <p>
-          Create your account and start your journey with us
+          Buat akun Anda dan mulai perjalanan bersama kami untuk <br></br> mengelola domain dan laporan DMARC Anda dengan mudah
         </p>
       </div>
     </div>

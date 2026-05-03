@@ -85,8 +85,8 @@ export default function ReportsPage() {
       setFetching(true)
       const res = await fetchEmailNow()
       alert(`Proses fetch dimulai! Task ID: ${res.task_id}`)
-    } catch {
-      alert('Gagal trigger fetch email. Cek konfigurasi IMAP.')
+    }  catch {
+  alert('Gagal trigger fetch email. Pastikan token.json Gmail sudah ada di server.') 
     } finally {
       setFetching(false)
     }

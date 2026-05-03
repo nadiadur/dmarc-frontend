@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -96,9 +97,12 @@ export default function ResetPasswordPage() {
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
                     />
-                    <button type="button" onClick={() => setShowNew(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      {showNew ? "🙈" : "👁️"}
+                    <button
+                      type="button"
+                      onClick={() => setShowNew(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    >
+                      {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                   {strength && (
@@ -121,9 +125,12 @@ export default function ResetPasswordPage() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                     />
-                    <button type="button" onClick={() => setShowConfirm(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      {showConfirm ? "🙈" : "👁️"}
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    >
+                      {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                   {confirmPassword && (

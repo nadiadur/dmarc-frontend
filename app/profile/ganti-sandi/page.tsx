@@ -13,7 +13,7 @@ export default function ChangePasswordPage() {
 
   const handleChangePassword = async () => {
   try {
-    await api.post('/change-password/', {
+    await api.post('/auth/change-password/', {
       old_password: oldPassword,
       new_password: newPassword,
     })

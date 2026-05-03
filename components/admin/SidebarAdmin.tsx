@@ -4,9 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  FileText,
-  Shield,
-  AlertCircle,
+  
 } from "lucide-react";
 
 type ItemProps = {
@@ -69,23 +67,10 @@ export default function SidebarAdmin() {
           path="/admin/users"
         />
 
-        <SidebarItem
-          icon={<FileText className="w-5 h-5" />}
-          label="Reports"
-          path="/admin/reports"
-        />
+      
+       
 
-        <SidebarItem
-          icon={<Shield className="w-5 h-5" />}
-          label="Security"
-          path="/admin/security"
-        />
-
-        <SidebarItem
-          icon={<AlertCircle className="w-5 h-5" />}
-          label="Issues"
-          path="/admin/issues"
-        />
+        
 
       </nav>
 

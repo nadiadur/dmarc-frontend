@@ -24,7 +24,7 @@ export default function EditProfilePage() {
     try {
       setLoading(true)
 
-      await api.patch('/profile/', {
+      await api.patch('/auth/profile/', {
         name,
         email,
       })
