@@ -191,8 +191,8 @@ export default function UserDashboard() {
         {/* ── Header ── */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back 👋</h1>
-            <p className="text-gray-500 mt-1">Ringkasan keamanan email domain kamu — 30 hari terakhir</p>
+            <h1 className="text-3xl font-bold text-gray-900">Selamat Datang</h1>
+            <p className="text-gray-500 mt-1">Ringkasan keamanan email domain kamu</p>
           </div>
           <button
             onClick={() => token && fetchDashboard(token, true)}

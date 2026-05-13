@@ -53,11 +53,13 @@ export default function Footer() {
       {/* ALAT */}
       <div className="flex flex-col h-full">
         <h3 className="font-semibold mb-3">Alat</h3>
+
         <ul className="space-y-2 text-gray-400">
-          <li className="hover:text-white transition cursor-pointer">
+          <li>
             Pemeriksa Domain
           </li>
-          <li className="hover:text-white transition cursor-pointer">
+
+          <li>
             Pemeriksa SPF
           </li>
         </ul>
@@ -66,11 +68,13 @@ export default function Footer() {
       {/* PLATFORM */}
       <div className="flex flex-col h-full">
         <h3 className="font-semibold mb-3">Platform</h3>
+
         <ul className="space-y-2 text-gray-400">
-          <li className="hover:text-white transition cursor-pointer">
-            XML Analyzer 
+          <li>
+            XML Analyzer
           </li>
-          <li className="hover:text-white transition cursor-pointer">
+
+          <li>
             Monitoring
           </li>
         </ul>

@@ -2,6 +2,8 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
+import Swal from "sweetalert2";
+
 
 /* =========================
    TYPES
@@ -22,6 +24,18 @@ export default function Hero() {
   const [error, setError] = useState("");
 
   const [isLogin, setIsLogin] = useState(false);
+      const showAlert = (
+      title: string,
+      text: string,
+      icon: "success" | "error" | "warning" | "info" = "info"
+    ) => {
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonColor: "#2563eb",
+      });
+    };
 
   // ✅ cek login dari cookie
   useEffect(() => {
@@ -42,7 +56,14 @@ export default function Hero() {
   }, []);
 
   const handleScan = async () => {
-    if (!domain) return alert("Masukkan domain dulu!");
+   if (!domain) {
+      showAlert(
+        "Peringatan",
+        "Masukkan domain dulu!",
+        "warning"
+      );
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -148,42 +169,70 @@ export default function Hero() {
           {result && (
             <div className="bg-white/10 p-6 rounded-2xl border border-white/20 backdrop-blur-md space-y-4">
 
+              {/* HEADER */}
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold">{result.domain}</h2>
 
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    result.status === "pass"
-                      ? "bg-green-500/20 text-green-300 border border-green-500"
-                      : "bg-red-500/20 text-red-300 border border-red-500"
-                  }`}
-                >
-                  {result.status.toUpperCase()}
-                </span>
+                <div className="flex items-center gap-3">
+
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      result.status === "pass"
+                        ? "bg-green-500/20 text-green-300 border border-green-500"
+                        : "bg-red-500/20 text-red-300 border border-red-500"
+                    }`}
+                  >
+                    {result.status.toUpperCase()}
+                  </span>
+
+                  {/* BUTTON RESET */}
+                  <button
+                    onClick={() => {
+                      setDomain("");
+                      setResult(null);
+                      setError("");
+                    }}
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-red-500/30 border border-white/20 flex items-center justify-center text-white transition"
+                  >
+                    ✕
+                  </button>
+
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-black/20 border border-white/10">
                   <p className="text-sm text-gray-300">SPF</p>
-                  <p className={`font-bold ${
-                    result.spf === "pass" ? "text-green-400" : "text-red-400"
-                  }`}>
+                  <p
+                    className={`font-bold ${
+                      result.spf === "pass"
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
                     {result.spf.toUpperCase()}
                   </p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-black/20 border border-white/10">
                   <p className="text-sm text-gray-300">DMARC</p>
-                  <p className={`font-bold ${
-                    result.dmarc === "pass" ? "text-green-400" : "text-red-400"
-                  }`}>
+                  <p
+                    className={`font-bold ${
+                      result.dmarc === "pass"
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
                     {result.dmarc.toUpperCase()}
                   </p>
                 </div>
               </div>
 
               <div>
-                <p className="text-sm text-gray-300 mb-2">Security Score</p>
+                <p className="text-sm text-gray-300 mb-2">
+                  Security Score
+                </p>
+
                 <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
                   <div
                     className={`h-full transition-all duration-500 ${

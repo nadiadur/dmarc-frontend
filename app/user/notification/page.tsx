@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import api from '@/lib/api'
+import Swal from 'sweetalert2'
 
 interface NotificationConfig {
   telegram_enabled: boolean
@@ -50,6 +51,18 @@ export default function NotificationsPage() {
   // 🔥 popup state
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [deleteAll, setDeleteAll] = useState(false)
+  const showAlert = (
+  title: string,
+  text: string,
+  icon: 'success' | 'error' | 'warning' | 'info' = 'info'
+) => {
+  Swal.fire({
+    title,
+    text,
+    icon,
+    confirmButtonColor: '#2563eb',
+  })
+}
 
   // pagination
   const totalPages = Math.ceil(history.length / PAGE_SIZE)
@@ -95,12 +108,18 @@ export default function NotificationsPage() {
 
       await api.post('/notifications/config/', config)
 
-      alert('Konfigurasi notifikasi berhasil disimpan!')
-
+      showAlert(
+        'Berhasil',
+        'Konfigurasi notifikasi berhasil disimpan!',
+        'success'
+      )
     } catch {
 
-      alert('Gagal menyimpan konfigurasi')
-
+      showAlert(
+        'Gagal',
+        'Gagal menyimpan konfigurasi',
+        'error'
+      )
     } finally {
 
       setSaving(false)
@@ -173,7 +192,11 @@ export default function NotificationsPage() {
 
     } catch {
 
-      alert('Gagal menghapus notifikasi')
+      showAlert(
+        'Gagal',
+        'Gagal menghapus notifikasi',
+        'error'
+      )
 
     } finally {
 
@@ -199,7 +222,11 @@ export default function NotificationsPage() {
 
     } catch {
 
-      alert('Gagal menghapus semua notifikasi')
+    showAlert(
+      'Gagal',
+      'Gagal menghapus semua notifikasi',
+      'error'
+    )
 
     } finally {
 

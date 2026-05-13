@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import api from '@/lib/api'
+import Swal from 'sweetalert2'
 import { formatDistanceToNow } from 'date-fns'
 import { id } from 'date-fns/locale'
 
@@ -26,7 +27,18 @@ export default function AlertsPage() {
 
   // delete modal
   const [deleteId, setDeleteId] = useState<number | null>(null)
-
+  const showAlert = (
+  title: string,
+  text: string,
+  icon: 'success' | 'error' | 'warning' | 'info' = 'info'
+) => {
+  Swal.fire({
+    title,
+    text,
+    icon,
+    confirmButtonColor: '#4f46e5',
+  })
+}
   // load data
   const loadAlerts = useCallback(async () => {
     try {
@@ -42,7 +54,11 @@ export default function AlertsPage() {
       setPage(1)
 
     } catch {
-      alert('Gagal memuat alerts')
+      showAlert(
+        'Gagal',
+        'Gagal memuat alerts',
+        'error'
+      )
     } finally {
       setLoading(false)
     }
@@ -77,7 +93,11 @@ export default function AlertsPage() {
         )
       )
     } catch {
-      alert('Gagal menandai alert')
+      showAlert(
+        'Gagal',
+        'Gagal menandai alert',
+        'error'
+      )
     }
   }
 
@@ -98,7 +118,11 @@ export default function AlertsPage() {
       )
 
     } catch {
-      alert('Gagal menghapus alert')
+      showAlert(
+        'Gagal',
+        'Gagal menghapus alert',
+        'error'
+      )
     } finally {
       setDeleteId(null)
     }

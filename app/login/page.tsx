@@ -3,6 +3,7 @@
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
 export default function UserLoginPage() {
   const router = useRouter();
@@ -11,6 +12,18 @@ export default function UserLoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const showAlert = (
+    title: string,
+    text: string,
+    icon: "success" | "error" | "warning" | "info" = "info"
+  ) => {
+    Swal.fire({
+      title,
+      text,
+      icon,
+      confirmButtonColor: "#2563eb",
+    });
+  };
 
   useEffect(() => {
     const token = Cookies.get("access");
@@ -44,14 +57,21 @@ export default function UserLoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.detail || "Login gagal");
+        showAlert(
+          "Login Gagal",
+          data.detail || "Login gagal",
+          "error"
+        );
         setLoading(false);
         return;
       }
 
       if (data.role !== "user") {
-        alert("Akses ditolak!");
-
+        showAlert(
+          "Akses Ditolak",
+          "Akun ini bukan user",
+          "warning"
+        );
         Cookies.remove("access");
         Cookies.remove("refresh");
         Cookies.remove("user_id");
@@ -83,7 +103,11 @@ export default function UserLoginPage() {
       }, 300);
     } catch (error) {
       console.error("Login error:", error);
-      alert("Terjadi kesalahan server");
+      showAlert(
+        "Server Error",
+        "Terjadi kesalahan server",
+        "error"
+      );
       setLoading(false);
     }
   }

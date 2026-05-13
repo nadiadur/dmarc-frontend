@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Cookies from 'js-cookie'
-
+import Swal from 'sweetalert2'
 import api from '@/lib/api'
 
 import Navbar from '@/components/Navbar'
@@ -20,38 +20,59 @@ export default function EditProfilePage() {
 
   const [loading, setLoading] = useState(false)
 
-  const handleSave = async () => {
-    try {
-      setLoading(true)
-
-      await api.patch('/auth/profile/', {
-        name,
-        email,
+  const showAlert = (
+      title: string,
+      text: string,
+      icon: 'success' | 'error' | 'warning' | 'info' = 'info'
+    ) => {
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonColor: '#2563eb',
       })
+    }
 
-      // update cookies
-      Cookies.set('username', name)
-      Cookies.set('email', email)
+  const handleSave = async () => {
+      try {
+        setLoading(true)
 
-      window.dispatchEvent(new Event('authChange'))
+        await api.patch('/auth/profile/', {
+          name,
+          email,
+        })
 
-        setTimeout(() => {
-        alert('✅ Profile berhasil diupdate')
-        window.location.href = '/profile'
-        }, 100)
+        Cookies.set('username', name)
+        Cookies.set('email', email)
 
-        } catch (err: unknown) {
+        window.dispatchEvent(new Event('authChange'))
 
-        console.log(err)
-
-        alert(
-            (err as { response?: { data?: { detail?: string } } }).response?.data?.detail ||
-            '❌ Gagal update profile'
+        showAlert(
+          'Berhasil',
+          'Profile berhasil diupdate',
+          'success'
         )
 
-        } finally {
+        setTimeout(() => {
+          window.location.href = '/profile'
+        }, 1500)
+
+      } catch (err: unknown) {
+        console.log(err)
+
+        const message =
+          (err as { response?: { data?: { detail?: string } } })
+            .response?.data?.detail || 'Gagal update profile'
+
+        showAlert(
+          'Gagal',
+          message,
+          'error'
+        )
+
+      } finally {
         setLoading(false)
-        }
+      }
             
   }
 

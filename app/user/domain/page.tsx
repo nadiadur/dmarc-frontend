@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import api from '@/lib/api'
+import Swal from 'sweetalert2'
 
 
 interface Domain {
@@ -73,6 +74,18 @@ export default function DomainPage() {
   const [submitting, setSubmitting] = useState(false)
   const [copied, setCopied] = useState('')
   const [showPrivateKey, setShowPrivateKey] = useState(false)
+  const showAlert = (
+  title: string,
+  text: string,
+  icon: 'success' | 'error' | 'warning' | 'info' = 'info'
+) => {
+  Swal.fire({
+    title,
+    text,
+    icon,
+    confirmButtonColor: '#2563eb',
+  })
+}
 
   const [formDomain, setFormDomain] = useState('')
   const [formEmail, setFormEmail] = useState('')
@@ -84,7 +97,7 @@ export default function DomainPage() {
       const res = await api.get('/domains/')
       setDomains(res.data)
     } catch {
-      alert('Gagal memuat domain')
+      showAlert('Gagal', 'Gagal memuat domain', 'error')
     } finally {
       setLoading(false)
     }
@@ -100,7 +113,14 @@ export default function DomainPage() {
 
   // ── Tambah domain ─────────────────────────────────────────────────────────
   const handleAddDomain = async () => {
-    if (!formDomain || !formEmail) return alert('Domain dan email wajib diisi')
+    if (!formDomain || !formEmail) {
+        showAlert(
+          'Peringatan',
+          'Domain dan email wajib diisi',
+          'warning'
+        )
+        return
+      }
     try {
       setSubmitting(true)
       const res = await api.post('/domains/', {
@@ -114,7 +134,11 @@ export default function DomainPage() {
       await handleScan(res.data.id)
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } }
-      alert(e.response?.data?.detail || 'Gagal menambah domain')
+      showAlert(
+        'Gagal',
+        e.response?.data?.detail || 'Gagal menambah domain',
+        'error'
+      )
     } finally {
       setSubmitting(false)
     }
@@ -134,7 +158,7 @@ export default function DomainPage() {
         summary: res.data.summary,
       })
     } catch {
-      alert('Gagal scan DNS')
+      showAlert('Gagal', 'Gagal scan DNS', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -152,7 +176,7 @@ export default function DomainPage() {
       setGenerateResult(res.data)
       setStep('records')
     } catch {
-      alert('Gagal generate DNS records')
+      showAlert('Gagal', 'Gagal generate DNS records', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -172,7 +196,7 @@ export default function DomainPage() {
         setTimeout(() => setStep('policy'), 1500)
       }
     } catch {
-      alert('Gagal verifikasi DNS')
+      showAlert('Gagal', 'Gagal verifikasi DNS', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -184,11 +208,15 @@ export default function DomainPage() {
     try {
       setSubmitting(true)
       await api.patch(`/domains/${selectedDomain.id}/policy/`, { policy: selectedPolicy })
-      alert(`Policy ${selectedPolicy.toUpperCase()} berhasil diterapkan! Update DNS record kamu sesuai instruksi.`)
+      showAlert(
+        'Berhasil',
+        `Policy ${selectedPolicy.toUpperCase()} berhasil diterapkan!`,
+        'success'
+      )
       setStep('list')
       setSelectedDomain(null)
     } catch {
-      alert('Gagal update policy')
+      showAlert('Gagal', 'Gagal update policy', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -196,12 +224,34 @@ export default function DomainPage() {
 
   // ── Hapus domain ──────────────────────────────────────────────────────────
   const handleDelete = async (id: number) => {
-    if (!confirm('Yakin hapus domain ini?')) return
+    const result = await Swal.fire({
+      title: 'Hapus domain?',
+      text: 'Domain akan dihapus dari monitoring',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Ya, hapus',
+      cancelButtonText: 'Batal',
+    })
+
+    if (!result.isConfirmed) return
+
     try {
       await api.delete(`/domains/${id}/`)
       await loadDomains()
+
+      showAlert(
+        'Berhasil',
+        'Domain berhasil dihapus',
+        'success'
+      )
     } catch {
-      alert('Gagal menghapus domain')
+      showAlert(
+        'Gagal',
+        'Gagal menghapus domain',
+        'error'
+      )
     }
   }
 

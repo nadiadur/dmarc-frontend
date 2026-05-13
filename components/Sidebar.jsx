@@ -17,9 +17,7 @@ export default function Sidebar() {
   return (
     <aside className="fixed top-0 left-0 w-64 h-screen bg-white border-r flex flex-col">
       <div className="flex items-center gap-4 px-8 py-[22px] bg-indigo-600 text-white border-b border-indigo-500">
-        <div className="bg-white text-indigo-600 font-bold px-2 py-1 rounded">
-          RA
-        </div>
+        
         <h2 className="text-lg font-semibold">Dmarclytics</h2>
       </div>
 
@@ -52,7 +50,7 @@ export default function Sidebar() {
 
         <SidebarItem
           icon={<Bell className="w-6 h-6" />}
-          label="Notification"
+          label="Notifikasi"
           href="/user/notification"
           onClick={() => router.push("/user/notification")}
         />

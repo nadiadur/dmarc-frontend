@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -9,6 +10,18 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const showAlert = (
+      title: string,
+      text: string,
+      icon: "success" | "error" | "warning" | "info" = "info"
+    ) => {
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonColor: "#2563eb",
+      });
+    };
 
 
   async function handleRegister(e: React.FormEvent) {
@@ -32,13 +45,24 @@ export default function RegisterPage() {
     console.log("DATA:", data);
 
     if (!res.ok) {
-      alert(data.detail || "Gagal register!");
+      showAlert(
+        "Register Gagal",
+        data.detail || "Gagal register!",
+        "error"
+      );
       setLoading(false);
       return;
     }
 
-    alert("Register berhasil! Silahkan login.");
-    router.push("/login");
+    showAlert(
+      "Berhasil",
+      "Register berhasil! Silahkan login.",
+      "success"
+    );
+
+    setTimeout(() => {
+      router.push("/login");
+    }, 1500);
 
     setLoading(false);
   }

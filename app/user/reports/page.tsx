@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import api from '@/lib/api'
+import Swal from 'sweetalert2'
 import { useRouter } from 'next/navigation' 
 import {
   getDashboardOverview,
@@ -57,16 +58,30 @@ export default function ReportsPage() {
   const PAGE_SIZE = 10
   const router = useRouter()
 
+  const showAlert = (
+    title: string,
+    text: string,
+    icon: 'success' | 'error' | 'warning' | 'info' = 'info'
+  ) => {
+    Swal.fire({
+      title,
+      text,
+      icon,
+      confirmButtonColor: '#2563eb',
+    })
+  }
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true)
+
         const [ov, rp, st] = await Promise.all([
           getDashboardOverview(),
           getReports({ page, page_size: PAGE_SIZE }),
           getReportStats(30),
         ])
+
         setOverview(ov)
         setReports(rp.results)
         setTotalReports(rp.count)
@@ -77,16 +92,27 @@ export default function ReportsPage() {
         setLoading(false)
       }
     }
+
     loadData()
   }, [page])
 
   const handleFetchEmail = async () => {
     try {
       setFetching(true)
+
       const res = await fetchEmailNow()
-      alert(`Proses fetch dimulai! Task ID: ${res.task_id}`)
-    }  catch {
-  alert('Gagal trigger fetch email. Pastikan token.json Gmail sudah ada di server.') 
+
+      showAlert(
+        'Berhasil',
+        `Proses fetch dimulai! Task ID: ${res.task_id}`,
+        'success'
+      )
+    } catch {
+      showAlert(
+        'Gagal',
+        'Gagal trigger fetch email. Pastikan token.json Gmail sudah ada di server.',
+        'error'
+      )
     } finally {
       setFetching(false)
     }
@@ -95,17 +121,30 @@ export default function ReportsPage() {
   const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
     try {
       setUploading(true)
+
       const formData = new FormData()
       formData.append('file', file)
+
       await api.post('/reports/upload/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      alert(`File ${file.name} berhasil diupload! Sedang diproses...`)
+
+      showAlert(
+        'Berhasil',
+        `File ${file.name} berhasil diupload! Sedang diproses...`,
+        'success'
+      )
+
       setTimeout(() => window.location.reload(), 2000)
     } catch {
-      alert('Gagal upload file. Pastikan format .xml, .gz, atau .zip')
+      showAlert(
+        'Gagal',
+        'Gagal upload file. Pastikan format .xml, .gz, atau .zip',
+        'error'
+      )
     } finally {
       setUploading(false)
       e.target.value = ''

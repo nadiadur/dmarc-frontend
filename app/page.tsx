@@ -29,6 +29,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <Features />
+      <DashboardPreview />
       <CTA />
       <HowItWorks />
       <Footer />

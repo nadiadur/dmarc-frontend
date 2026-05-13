@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-
+import Swal from 'sweetalert2'
 import api from '@/lib/api'
 
 import Navbar from '@/components/Navbar'
@@ -10,7 +10,18 @@ import Sidebar from '@/components/Sidebar'
 export default function ChangePasswordPage() {
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
-
+  const showAlert = (
+      title: string,
+      text: string,
+      icon: 'success' | 'error' | 'warning' | 'info' = 'info'
+    ) => {
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonColor: '#2563eb',
+      })
+    }
   const handleChangePassword = async () => {
   try {
     await api.post('/auth/change-password/', {
@@ -18,12 +29,20 @@ export default function ChangePasswordPage() {
       new_password: newPassword,
     })
 
-    alert('Password berhasil diubah')
+    showAlert(
+      "Berhasil",
+      "Password berhasil diubah",
+      "success"
+    )
 
     setOldPassword('')
     setNewPassword('')
   } catch {
-    alert('Gagal mengganti password')
+    showAlert(
+      "Gagal",
+      "Gagal mengganti password",
+      "error"
+    )
   }
 }
 
