@@ -146,18 +146,78 @@ export default function SpfCheckerPage() {
             </div>
           )}
 
-          {/* RESULT */}
-          {result && (
-            <div className="bg-gray-50 p-6 rounded-xl border space-y-3">
-              <p><b>Domain:</b> {result.domain}</p>
-              <p className={result.status === "pass" ? "text-green-600" : "text-red-600"}>
-                <b>Status:</b> {result.status}
-              </p>
+        {/* RESULT */}
+        {result && (
+          <div className="mt-10 space-y-6">
+
+            {/* TITLE */}
+            <h2 className="text-3xl text-center text-blue-900 leading-relaxed">
+              Hasil pengecekan SPF untuk domain{" "}
+              <span className="font-bold">
+                {result.domain}
+              </span>
+            </h2>
+
+            {/* CARD */}
+            <div className="grid md:grid-cols-2 gap-6">
+
+              {/* STATUS */}
+              <div className="bg-white border rounded-2xl p-6 shadow-sm">
+
+                <p className="text-gray-500 mb-3">
+                  Status SPF
+                </p>
+
+                <h3
+                  className={`text-3xl font-bold ${
+                    result.status === "pass"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {result.status === "pass"
+                    ? "Valid"
+                    : "Tidak Valid"}
+                </h3>
+
+              </div>
+
+              {/* SPF RECORD */}
+              <div className="bg-white border rounded-2xl p-6 shadow-sm">
+
+                <p className="text-gray-500 mb-3">
+                  SPF Record
+                </p>
+
+                <h3 className="text-lg font-bold text-blue-700 break-all">
+                  {result.record}
+                </h3>
+
+              </div>
+
             </div>
-          )}
 
-          
+            {/* INFO */}
+            <div
+              className={`rounded-2xl border p-5 ${
+                result.status === "pass"
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
+            >
 
+              <p className="leading-relaxed">
+
+                {result.status === "pass"
+                  ? `SPF record berhasil ditemukan pada domain ${result.domain}. SPF membantu memvalidasi server pengirim email sehingga dapat mengurangi risiko spoofing atau pemalsuan email.`
+                  : `SPF record tidak ditemukan pada domain ${result.domain}. Domain belum memiliki perlindungan SPF sehingga email lebih rentan terhadap spoofing.`}
+
+              </p>
+
+            </div>
+
+          </div>
+        )}
         </div>
         {/* FAQ SECTION */}
         <div className="mt-14 bg-blue-950 rounded-3xl p-8 md:p-10 text-white">

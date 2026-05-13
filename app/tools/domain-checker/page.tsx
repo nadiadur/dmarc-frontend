@@ -133,41 +133,121 @@ export default function DomainCheckerPage() {
           )}
 
           {/* RESULT */}
-          {result && (
-            <div className="space-y-4">
+          {result && (() => {
+            const riskLevel =
+              result.spf === "fail" && result.dmarc === "fail"
+                ? "High"
+                : result.spf === "fail" || result.dmarc === "fail"
+                ? "Medium"
+                : "Low";
 
-              <h2 className="text-xl font-semibold text-blue-900">
-                Hasil Scan
-              </h2>
+            const riskColor =
+              riskLevel === "Low"
+                ? "text-green-600"
+                : riskLevel === "Medium"
+                ? "text-yellow-600"
+                : "text-red-600";
 
-              <div className="grid md:grid-cols-2 gap-4">
+            const riskBox =
+              riskLevel === "Low"
+                ? "bg-green-50 border-green-200"
+                : riskLevel === "Medium"
+                ? "bg-yellow-50 border-yellow-200"
+                : "bg-red-50 border-red-200";
 
-                <div className="p-4 border rounded-xl bg-gray-50">
-                  <p className="text-gray-500 text-sm">Domain</p>
-                  <p className="font-semibold">{result.domain}</p>
+            const score =
+              riskLevel === "Low"
+                ? "100%"
+                : riskLevel === "Medium"
+                ? "50%"
+                : "0%";
+
+            const scoreBar =
+              riskLevel === "Low"
+                ? "bg-green-500 w-full"
+                : riskLevel === "Medium"
+                ? "bg-yellow-500 w-1/2"
+                : "bg-red-500 w-[10%]";
+
+            return (
+              <div className="mt-8 bg-blue-950 rounded-3xl p-8 text-white">
+
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-blue-200 text-sm">Hasil Scan Domain</p>
+                    <h2 className="text-2xl font-bold">{result.domain}</h2>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setDomain("");
+                      setResult(null);
+                      setError("");
+                    }}
+                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-red-500/30 border border-white/20"
+                  >
+                    ✕
+                  </button>
                 </div>
 
-                <div className="p-4 border rounded-xl bg-gray-50">
-                  <p className="text-gray-500 text-sm">Status</p>
-                  <p className="font-semibold text-green-600">
-                    {result.status}
+                <div className={`p-5 rounded-2xl border mb-6 ${riskBox}`}>
+                  <p className="text-sm text-gray-600">Risk Assessment</p>
+                  <h3 className={`text-xl font-bold ${riskColor}`}>
+                    {riskLevel} Risk
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {riskLevel === "Low"
+                      ? "Konfigurasi SPF dan DMARC sudah terdeteksi dengan baik."
+                      : riskLevel === "Medium"
+                      ? "Domain masih memiliki salah satu konfigurasi SPF atau DMARC yang perlu diperiksa."
+                      : "Domain belum memiliki konfigurasi SPF dan DMARC yang valid sehingga berisiko tinggi terhadap spoofing email."}
                   </p>
                 </div>
 
-                <div className="p-4 border rounded-xl bg-gray-50">
-                  <p className="text-gray-500 text-sm">SPF</p>
-                  <p className="font-semibold">{result.spf}</p>
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-blue-100 text-sm">Security Score</p>
+                    <p className="font-bold">{score}</p>
+                  </div>
+
+                  <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+                    <div className={`h-full transition-all duration-500 ${scoreBar}`} />
+                  </div>
                 </div>
 
-                <div className="p-4 border rounded-xl bg-gray-50">
-                  <p className="text-gray-500 text-sm">DMARC</p>
-                  <p className="font-semibold">{result.dmarc}</p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-white/10 border border-white/10 rounded-2xl p-5">
+                    <p className="text-blue-100 text-sm mb-1">SPF</p>
+                    <p className={`text-xl font-bold ${result.spf === "pass" ? "text-green-400" : "text-red-400"}`}>
+                      {result.spf.toUpperCase()}
+                    </p>
+                    <p className="text-xs text-blue-200 mt-1">Sender Policy Framework</p>
+                  </div>
+
+                  <div className="bg-white/10 border border-white/10 rounded-2xl p-5">
+                    <p className="text-blue-100 text-sm mb-1">DMARC</p>
+                    <p className={`text-xl font-bold ${result.dmarc === "pass" ? "text-green-400" : "text-red-400"}`}>
+                      {result.dmarc.toUpperCase()}
+                    </p>
+                    <p className="text-xs text-blue-200 mt-1">
+                      Domain-based Message Authentication
+                    </p>
+                  </div>
                 </div>
 
+                <button
+                  onClick={() => {
+                    setDomain("");
+                    setResult(null);
+                    setError("");
+                  }}
+                  className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition"
+                >
+                  Cek Domain Lain
+                </button>
               </div>
-            </div>
-          )}
-
+            );
+          })()}
         </div>
         {/* FAQ SECTION */}
         <div className="mt-14 bg-blue-950 rounded-3xl p-8 md:p-10 text-white">

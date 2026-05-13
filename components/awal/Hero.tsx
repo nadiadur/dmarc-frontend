@@ -166,26 +166,60 @@ export default function Hero() {
           )}
 
           {/* RESULT */}
-          {result && (
-            <div className="bg-white/10 p-6 rounded-2xl border border-white/20 backdrop-blur-md space-y-4">
+          {result && (() => {
 
-              {/* HEADER */}
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold">{result.domain}</h2>
+            const riskLevel =
+              result.spf === "fail" && result.dmarc === "fail"
+                ? "High"
+                : result.spf === "fail" || result.dmarc === "fail"
+                ? "Medium"
+                : "Low";
 
-                <div className="flex items-center gap-3">
+            const riskColor =
+              riskLevel === "Low"
+                ? "text-green-400"
+                : riskLevel === "Medium"
+                ? "text-yellow-400"
+                : "text-red-400";
 
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      result.status === "pass"
-                        ? "bg-green-500/20 text-green-300 border border-green-500"
-                        : "bg-red-500/20 text-red-300 border border-red-500"
-                    }`}
-                  >
-                    {result.status.toUpperCase()}
-                  </span>
+            const riskBox =
+              riskLevel === "Low"
+                ? "bg-green-500/10 border-green-400/50"
+                : riskLevel === "Medium"
+                ? "bg-yellow-500/10 border-yellow-400/50"
+                : "bg-red-500/10 border-red-400/50";
 
-                  {/* BUTTON RESET */}
+            const score =
+              riskLevel === "Low"
+                ? "100%"
+                : riskLevel === "Medium"
+                ? "50%"
+                : "0%";
+
+            const scoreBar =
+              riskLevel === "Low"
+                ? "bg-green-500 w-full"
+                : riskLevel === "Medium"
+                ? "bg-yellow-500 w-1/2"
+                : "bg-red-500 w-[10%]";
+
+            return (
+
+              <div className="bg-white/10 p-6 rounded-2xl border border-white/20 backdrop-blur-md space-y-5 shadow-xl">
+
+                {/* HEADER */}
+                <div className="flex items-center justify-between">
+
+                  <div>
+                    <p className="text-sm text-gray-300">
+                      Hasil Scan Domain
+                    </p>
+
+                    <h2 className="text-xl font-bold">
+                      {result.domain}
+                    </h2>
+                  </div>
+
                   <button
                     onClick={() => {
                       setDomain("");
@@ -198,55 +232,131 @@ export default function Hero() {
                   </button>
 
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-black/20 border border-white/10">
-                  <p className="text-sm text-gray-300">SPF</p>
-                  <p
-                    className={`font-bold ${
-                      result.spf === "pass"
-                        ? "text-green-400"
-                        : "text-red-400"
-                    }`}
-                  >
-                    {result.spf.toUpperCase()}
+                {/* RISK */}
+                <div className={`p-4 rounded-xl border ${riskBox}`}>
+
+                  <p className="text-sm text-gray-300">
+                    Risk Assessment
                   </p>
-                </div>
 
-                <div className="p-4 rounded-xl bg-black/20 border border-white/10">
-                  <p className="text-sm text-gray-300">DMARC</p>
-                  <p
-                    className={`font-bold ${
-                      result.dmarc === "pass"
-                        ? "text-green-400"
-                        : "text-red-400"
-                    }`}
-                  >
-                    {result.dmarc.toUpperCase()}
+                  <h3 className={`text-lg font-bold ${riskColor}`}>
+                    {riskLevel} Risk
+                  </h3>
+
+                  <p className="text-sm text-gray-300 mt-1 leading-relaxed">
+                    {riskLevel === "Low"
+                      ? "Konfigurasi SPF dan DMARC sudah terdeteksi dengan baik."
+                      : riskLevel === "Medium"
+                      ? "Domain masih memiliki salah satu konfigurasi SPF atau DMARC yang perlu diperiksa."
+                      : "Domain belum memiliki konfigurasi SPF dan DMARC yang valid sehingga berisiko tinggi terhadap spoofing email."}
                   </p>
+
                 </div>
-              </div>
 
-              <div>
-                <p className="text-sm text-gray-300 mb-2">
-                  Security Score
-                </p>
+                {/* SCORE */}
+                <div>
 
-                <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-500 ${
-                      result.status === "pass"
-                        ? "bg-green-500 w-full"
-                        : "bg-red-500 w-1/2"
-                    }`}
-                  />
+                  <div className="flex items-center justify-between mb-2">
+
+                    <p className="text-sm text-gray-300">
+                      Security Score
+                    </p>
+
+                    <p className={`font-bold ${riskColor}`}>
+                      {score}
+                    </p>
+
+                  </div>
+
+                  <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+
+                    <div
+                      className={`h-full transition-all duration-500 ${scoreBar}`}
+                    />
+
+                  </div>
+
                 </div>
+
+                {/* RESULT GRID */}
+                <div className="grid grid-cols-2 gap-4">
+
+                  {/* SPF */}
+                  <div className="p-4 rounded-xl bg-black/20 border border-white/10">
+
+                    <div className="flex items-center justify-between mb-2">
+
+                      <p className="text-sm text-gray-300">
+                        SPF
+                      </p>
+
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          result.spf === "pass"
+                            ? "bg-green-400"
+                            : "bg-red-400"
+                        }`}
+                      />
+
+                    </div>
+
+                    <p
+                      className={`font-bold text-lg ${
+                        result.spf === "pass"
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {result.spf.toUpperCase()}
+                    </p>
+
+                    <p className="text-xs text-gray-400 mt-1">
+                      Sender Policy Framework
+                    </p>
+
+                  </div>
+
+                  {/* DMARC */}
+                  <div className="p-4 rounded-xl bg-black/20 border border-white/10">
+
+                    <div className="flex items-center justify-between mb-2">
+
+                      <p className="text-sm text-gray-300">
+                        DMARC
+                      </p>
+
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          result.dmarc === "pass"
+                            ? "bg-green-400"
+                            : "bg-red-400"
+                        }`}
+                      />
+
+                    </div>
+
+                    <p
+                      className={`font-bold text-lg ${
+                        result.dmarc === "pass"
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {result.dmarc.toUpperCase()}
+                    </p>
+
+                    <p className="text-xs text-gray-400 mt-1">
+                      Domain-based Message Authentication
+                    </p>
+
+                  </div>
+
+                </div>
+
               </div>
-
-            </div>
-          )}
-
+            );
+          })()}
         </div>
       </div>
     </section>
