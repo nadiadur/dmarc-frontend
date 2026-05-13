@@ -261,14 +261,14 @@ export default function NotificationsPage() {
               Copy token bot
             </li>
 
-            <li className="flex gap-2">
-              <span className="font-bold">4.</span>
-              Buka bot → klik Start
+             <li className="flex gap-2">
+             <span className="font-bold">4.</span>
+              Buka bot → klik <strong>Start</strong> lalu kirim pesan (contoh: <code>hai</code> atau <code>halo</code>)
             </li>
 
             <li className="flex gap-2">
               <span className="font-bold">5.</span>
-              Ambil chat id dari getUpdates
+                  <span>Buka browser, ketik <code className="text-xs bg-blue-100 px-1 rounded">https://api.telegram.org/botTOKEN/getUpdates</code> (ganti TOKEN dengan token bot kamu), lalu ambil nilai <code className="text-xs bg-blue-100 px-1 rounded">chat.id</code></span>
             </li>
 
           </ol>

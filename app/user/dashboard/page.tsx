@@ -124,9 +124,15 @@ export default function UserDashboard() {
     if (!silent) setLoading(true);
     else setRefreshing(true);
     try {
-      const res = await fetch("http://localhost:8000/api/dashboard/overview/", {
-        headers: { Authorization: `Bearer ${t}` },
-      });
+      const res = await fetch(
+  `${process.env.NEXT_PUBLIC_API_URL}/dashboard/overview/`,
+  {
+    headers: {
+      Authorization: `Bearer ${t}`,
+    },
+  }
+);
+    
       if (res.status === 401) {
         Cookies.remove("access");
         Cookies.remove("role");

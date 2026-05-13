@@ -17,11 +17,15 @@ export default function AdminLoginPage() {
     setErrorMsg("");
 
     try {
-      const res = await fetch("http://localhost:8000/api/auth/admin1/login/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, password }),
-      });
+      const res = await fetch(
+  `${process.env.NEXT_PUBLIC_API_URL}/auth/admin1/login/`,
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, password }),
+  }
+);
+   
 
       let data;
       try {

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
@@ -38,7 +38,6 @@ export default function ResetPasswordPage() {
 
     setLoading(true)
     try {
-      // ✅ pakai api instance, bukan hardcode URL
       await api.post("/auth/password-reset-confirm/", {
         token,
         new_password: newPassword,
@@ -59,8 +58,6 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen flex overflow-hidden">
-
-      {/* LEFT */}
       <div className="w-[45%] bg-white flex flex-col justify-center px-16 relative">
         <h1 className="absolute top-6 left-10 text-xl font-semibold text-blue-600">Dmarclytics</h1>
         <div>
@@ -69,10 +66,8 @@ export default function ResetPasswordPage() {
         </div>
       </div>
 
-      {/* RIGHT */}
       <div className="w-[55%] flex items-center justify-center bg-gradient-to-b from-blue-700 to-blue-400">
         <div className="bg-white/10 backdrop-blur-md p-10 rounded-2xl w-[400px] text-center shadow-xl">
-
           {success ? (
             <div className="space-y-4">
               <div className="w-16 h-16 mx-auto rounded-full bg-white/20 flex items-center justify-center text-4xl">✅</div>
@@ -84,24 +79,14 @@ export default function ResetPasswordPage() {
             <>
               <h2 className="text-2xl font-semibold text-white mb-2">Password Baru</h2>
               <p className="text-blue-100 text-sm mb-6">Masukkan password baru Anda</p>
-
               <form onSubmit={handleSubmit} className="space-y-4 text-left">
-
                 <div>
                   <div className="relative">
-                    <input
-                      type={showNew ? "text" : "password"}
-                      placeholder="Password baru"
+                    <input type={showNew ? "text" : "password"} placeholder="Password baru"
                       className="w-full px-4 py-3 pr-12 rounded-lg bg-white/80 outline-none focus:ring-2 focus:ring-blue-300"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNew(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                    >
+                      value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
+                    <button type="button" onClick={() => setShowNew(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
                       {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
@@ -114,22 +99,13 @@ export default function ResetPasswordPage() {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <div className="relative">
-                    <input
-                      type={showConfirm ? "text" : "password"}
-                      placeholder="Konfirmasi password"
+                    <input type={showConfirm ? "text" : "password"} placeholder="Konfirmasi password"
                       className="w-full px-4 py-3 pr-12 rounded-lg bg-white/80 outline-none focus:ring-2 focus:ring-blue-300"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                    >
+                      value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                    <button type="button" onClick={() => setShowConfirm(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
                       {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
@@ -139,16 +115,9 @@ export default function ResetPasswordPage() {
                     </p>
                   )}
                 </div>
-
-                {error && (
-                  <p className="text-red-200 text-sm bg-red-500/20 px-3 py-2 rounded-lg">{error}</p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading || !token}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg transition font-medium"
-                >
+                {error && <p className="text-red-200 text-sm bg-red-500/20 px-3 py-2 rounded-lg">{error}</p>}
+                <button type="submit" disabled={loading || !token}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg transition font-medium">
                   {loading ? "Menyimpan..." : "Simpan Password Baru"}
                 </button>
               </form>
@@ -157,5 +126,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }
