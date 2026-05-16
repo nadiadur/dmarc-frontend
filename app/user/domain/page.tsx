@@ -105,15 +105,37 @@ export default function DomainPage() {
 
   useEffect(() => { loadDomains() }, [])
 
-  const handleCopy = (text: string, key: string) => {
-    navigator.clipboard.writeText(text)
+  const handleCopy = async (text: string, key: string) => {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      const textArea = document.createElement("textarea")
+      textArea.value = text
+      textArea.style.position = "fixed"
+      textArea.style.left = "-999999px"
+
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+
+      document.execCommand("copy")
+
+      textArea.remove()
+    }
+
     setCopied(key)
-    setTimeout(() => setCopied(''), 2000)
+    setTimeout(() => setCopied(""), 2000)
+
+  } catch (err) {
+    console.error("Gagal copy:", err)
+    alert("Tidak bisa menyalin teks")
   }
+}
 
   // ── Tambah domain ─────────────────────────────────────────────────────────
   const handleAddDomain = async () => {
-    if (!formDomain || !formEmail) {
+    if (!formDomain) {
         showAlert(
           'Peringatan',
           'Domain dan email wajib diisi',
@@ -125,7 +147,7 @@ export default function DomainPage() {
       setSubmitting(true)
       const res = await api.post('/domains/', {
         domain_name: formDomain.toLowerCase().trim(),
-        rua_email: formEmail.trim(),
+        rua_email: 'nadiabelajar672@gmail.com',
       })
       setSelectedDomain(res.data)
       await loadDomains()
@@ -421,17 +443,6 @@ export default function DomainPage() {
                   className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm"
                 />
                 <p className="text-gray-400 text-xs mt-1">Tanpa http:// atau www</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email Penerima Laporan (RUA)</label>
-                <input
-                  type="email"
-                  placeholder="dmarc-reports@yourdomain.com"
-                  value={formEmail}
-                  onChange={(e) => setFormEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm"
-                />
-                <p className="text-gray-400 text-xs mt-1">Laporan XML akan dikirim ke email ini secara otomatis</p>
               </div>
               <button
                 onClick={handleAddDomain}
