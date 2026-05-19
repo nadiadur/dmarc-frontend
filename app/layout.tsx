@@ -11,15 +11,9 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
 export const metadata: Metadata = {
-  title: "Dmarclytics",
-  description: "Monitoring DMARC email security",
-  icons: {
-    icon: [
-      { url: "/logoDmarc.png", type: "image/png" }
-    ],
-  },
+  title: "Dmarclytics",        
+  description: "Dmarc analytics",
 };
 
 export default function RootLayout({
